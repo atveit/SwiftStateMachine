@@ -19,13 +19,15 @@ The definition format is a simple domain specific language of the form:
 
     <initial state label> -> <next state label> (<transition label>)
 
-You can also combine definitions in one string by separating them with a semicolon.
+Labels are currently just Swift strings (you should generally just stick to non-special characters in labels for now). In the a future version of this project I intend labels to be any user definable type (most usefully: enums).
+
+You can also combine definitions in one string by separating them with a semicolon (this could be handy when loading a state machine definition from disk).
 
 You instantiate a state machine with a definition like so:
 
     var machine = StateMachine(definition:machineDefinition)
 
-Because the state machine definition is kept separate from the state machine itself you can have multiple state machine instances all sharing a single definition.
+Because the definition is kept separate from the state machine itself you can have multiple state machine instances all sharing a single definition.
 
 You can then perform transitions between states:
 
@@ -36,24 +38,24 @@ You can cause the state machine to log transitions (and other events):
 
     machine.logger = println
 
-You can access the states of a defintion via the 'states' property:
+You can access the states of a definition via the 'states' property:
 
     let unlockedState = machineDefinition.states["unlocked"]
     
-And you can access the transitions of that state via the 'transitions' property
+And you can access the transitions of a state via the 'transitions' property
 
     let transition = unlockedState!.transitions["push"]
     
-You can set "action" closures on transitions that trigger when a transition is performed:
+You can set "_action_" closures on transitions that execute when a transition is performed:
 
     machineDefinition.states["unlocked"]!.transitions["coin"]!.action = { t in println("#### Stile already unlocked. Coin rejected.") }
     machineDefinition.states["locked"]!.transitions["push"]!.action = { t in println("#### Stile locked. Try putting a coin in.") }
 
-You can set "entryAction" closures on states that fire when the state is entered. COnversely there are also "exitAction" closures that fire when the state is left:
+You can set "_entryAction_" closures on states that execute when the state is entered. Conversely there are also "_exitAction_" closures that execute when the state is exited:
 
     machineDefinition.states["unlocked"]!.entryAction = { t in println("### Clunk!") }
 
-There are also "transitionGuard" closures on state that prevent transitions from occuring:
+There are also "_transitionGuard_" closures on states that prevent transitions from occuring:
 
     // TODO: Example forthcoming
 
@@ -61,7 +63,7 @@ You can print all definitions like so:
 
     println(machineDefinition.definitionFormats())
 
-And this outputs:
+Which outputs:
 
     locked -> locked (push);
     locked -> unlocked (coin);
@@ -86,7 +88,7 @@ The dot file looks like:
         locked -> locked [label="push"]
     }
     
-And you can use GraphViz (brew install graphviz) to generate an image from the dot file:
+And you can use GraphViz (brew install graphviz) to generate an image file from the dot file:
 
     schwa@mouse ~> dot test.dot -Tpng > test.png
 
