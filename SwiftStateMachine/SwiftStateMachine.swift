@@ -25,7 +25,6 @@ public class StateMachine {
      Generally you create a definition, add states and transitions to it and then use the defintion to create the state machine.
      */
     public class Definition {
-//        typealias StateTransitionKey = HashablePair <StateLabel,TransitionLabel>
     
         public var states : [StateLabel:State] = [:]
         
@@ -33,7 +32,6 @@ public class StateMachine {
             Initial state, if you do not define an initial state the first state added to the definition is assumed to be the initial.
         */
         public var initialState : State!
-//        internal var transitions : [StateTransitionKey:Transition] = [:]
 
         public init() {
         }
@@ -239,24 +237,6 @@ public extension StateMachine.Definition {
         return dot
     }
 }
-
-
-// Playground - noun: a place where people can play
-
-struct HashablePair <T1:Hashable, T2:Hashable> : Hashable {
-    let v1:T1
-    let v2:T2
-    var hashValue: Int { get { return v1.hashValue ^ v2.hashValue } }
-    init(_ v1:T1, _ v2:T2) {
-        self.v1 = v1
-        self.v2 = v2
-    }
-}
-
-func == <T1, T2> (lhs:HashablePair <T1, T2>, rhs:HashablePair <T1, T2>) -> Bool {
-    return lhs.hashValue == rhs.hashValue
-    }
-
 
 // All this because (Hashable, Hashable) isn't itself Hashable
 
