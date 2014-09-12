@@ -175,7 +175,7 @@ extension StateMachine.Transition: Printable {
 public extension StateMachine.Definition {
 
     func processDefinitionFormats(string:String) -> Bool {
-        for string in string.componentsSeparatedByString(",") {
+        for string in string.componentsSeparatedByString(";") {
             let expression = NSRegularExpression(pattern:"([a-z]+) -> ([a-z]+) \\(([a-z]+)\\)", options:.CaseInsensitive, error:nil)
             let match = expression.firstMatchInString(string, options:NSMatchingOptions(), range:NSMakeRange(0, string._bridgeToObjectiveC().length))
             if let match = match {
@@ -197,7 +197,7 @@ public extension StateMachine.Definition {
         var lines:[String] = []
         for state in self.states.values {
             for transition in state.transitions.values {
-                lines.append("\(state.label) -> \(transition.nextState.label) (\(transition.label))")
+                lines.append("\(state.label) -> \(transition.nextState.label) (\(transition.label));")
             }
         }
         lines.sort(<)
@@ -221,7 +221,6 @@ public extension StateMachine.Definition {
         }
 
         dot += "\tstart -> \(self.initialState.label)\n"
-
 
         for state in self.states.values {
             for transition in state.transitions.values {
