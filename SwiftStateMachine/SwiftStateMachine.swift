@@ -139,7 +139,7 @@ public class StateMachine {
                 action(state:self.state)
             }
             let newState = transition.nextState
-            self.log("\(transition.description): from \(state.description) to new \(newState.description)")
+//            self.log("\(transition.description): from \(state.description) to new \(newState.description)")
 
             self.state = newState
             if let action = self.state.entryAction {
@@ -253,3 +253,41 @@ func == <T1, T2> (lhs:HashablePair <T1, T2>, rhs:HashablePair <T1, T2>) -> Bool 
 
 
 // All this because (Hashable, Hashable) isn't itself Hashable
+
+// #############################################################################
+
+//typealias Column = [StateMachine.TransitionLabel:StateMachine.StateLabel]
+//typealias Table = [StateMachine.StateLabel:Column]
+//
+//var table = Table()
+//var allTransitionLabels:[StateMachine.TransitionLabel] = []
+//
+//for state in machineDefinition.states.values {
+//    table[state.label] = Column()
+//    for transition in state.transitions.values {
+//        if contains(allTransitionLabels, transition.label) == false {
+//            allTransitionLabels.append(transition.label)
+//        }
+//        table[state.label]![transition.label] = transition.nextState.label
+//    }
+//}
+//
+//print("\t")
+//println(" | ".join(machineDefinition.states.keys))
+//for transitionLabel in allTransitionLabels {
+//    print("\(transitionLabel): ")
+//
+//    let row = machineDefinition.states.keys.map {
+//        (stateLabel:StateMachine.StateLabel) -> String in
+//        if let newStateLabel = table[stateLabel]?[transitionLabel] {
+//            return newStateLabel
+//        }
+//        else {
+//            return "..."
+//        }
+//    }
+//
+//    println(" | ".join(row))
+//}
+
+// #############################################################################
