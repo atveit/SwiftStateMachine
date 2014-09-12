@@ -34,6 +34,12 @@ You can then perform transitions between states:
     machine.performTransition("push")
     machine.performTransition("coin")
 
+Perform transition returns true if the transition was successful and false otherwise.
+
+You can test if a transition is possible with _canPerformTransition_:
+
+    machine.canPerformTransition("push")
+
 You can cause the state machine to log transitions (and other events):
 
     machine.logger = println
