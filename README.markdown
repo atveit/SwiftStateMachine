@@ -67,3 +67,27 @@ The "turnstile" definition looks like:
 
 ![test.png](test.png)
 
+## TODO
+
+Both the State and Transition classes need to be "dummed" down and the logic moved into the main Definition object - perhaps as an transition table. This would allow definitions to be easily changed on the fly.
+
+## Labels
+
+States and transitions currently use a String as the label type. It would be great if instead of Strings the user could use any Swift type as a label - for example user defined enums. To do this the code should be rewritten to use Swift generics instead. Unfortunately Swift currently cannot use nested classes and generics.
+
+## State Machine Definition Domain Specific Language EBNF
+
+    letter = "A" | "B" | "C" | "D" | "E" | "F" | "G"
+           | "H" | "I" | "J" | "K" | "L" | "M" | "N"
+           | "O" | "P" | "Q" | "R" | "S" | "T" | "U"
+           | "V" | "W" | "X" | "Y" | "Z" ;
+
+    identifier = letter , { letter } ;
+
+    state_label = identifier ;
+
+    transition_label = identifier ;
+
+    definition = state_label , "->" , state_label , "(" , transition_label, ")"
+
+    definitions = definition { ";" , definition }
