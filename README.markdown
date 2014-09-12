@@ -98,11 +98,9 @@ The "turnstile" definition state diagram looks like:
 
 ## TODO
 
-Both the State and Transition classes need to be "dummed" down and the logic moved into the main Definition object - perhaps as a transition table. This would allow definitions to be easily changed on the fly.
-
-### Labels
-
-States and transitions currently use a String as the label type. It would be great if instead of Strings the user could use any Swift type as a label - for example user defined enums. To do this the code should be rewritten to use Swift generics instead. Unfortunately Swift currently cannot use nested classes and generics.
+* Unit Tests
+* Both the State and Transition classes need to be "dummed" down and the logic moved into the main Definition object - perhaps as a transition table. This would allow definitions to be easily changed on the fly.
+* Labels: States and transitions currently use a String as the label type. It would be great if instead of Strings the user could use any Swift type as a label - for example user defined enums. To do this the code should be rewritten to use Swift generics instead. Unfortunately Swift currently cannot use nested classes and generics.
 
 ## State Machine Definition Domain Specific Language EBNF
 
