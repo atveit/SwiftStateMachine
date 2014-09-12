@@ -28,6 +28,10 @@ public class StateMachine {
 //        typealias StateTransitionKey = HashablePair <StateLabel,TransitionLabel>
     
         public var states : [StateLabel:State] = [:]
+        
+        /**
+            Initial state, if you do not define an initial state the first state added to the definition is assumed to be the initial.
+        */
         public var initialState : State!
 //        internal var transitions : [StateTransitionKey:Transition] = [:]
 
@@ -35,6 +39,9 @@ public class StateMachine {
         }
 
         public func addState(state:State) {
+            if self.initialState == nil {
+                self.initialState = state
+            }
             self.states[state.label] = state
         }
 
