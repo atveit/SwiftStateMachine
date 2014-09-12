@@ -10,99 +10,16 @@ import Foundation
 
 // MARK: Machine
 
-public class StateMachine {
+public class StateMachine <StateLabel:Hashable, TransitionLabel:Hashable> {
 
-    public typealias StateLabel = String
-    public typealias TransitionLabel = String
-    public typealias Action = (state:State) -> (Void)
-    public typealias TransitionGuard = (state:State) -> (Bool)
+    typealias _Definition = Definition <StateLabel, StateLabel>
+    typealias _State = _Definition._State
+    typealias _Transition = _Definition._Transition
+
     public typealias Logger = (AnyObject) -> Void
 
-    /**
-     A State Machine definition.
-     
-     Generally you create a definition, add states and transitions to it and then use the defintion to create the state machine.
-     */
-    public class Definition {
-    
-        public var states : [StateLabel:State] = [:]
-        
-        /**
-            Initial state, if you do not define an initial state the first state added to the definition is assumed to be the initial.
-        */
-        public var initialState : State!
-
-        public init() {
-        }
-
-        public func addState(state:State) {
-            if self.initialState == nil {
-                self.initialState = state
-            }
-            self.states[state.label] = state
-        }
-
-//        public func addTransition(transition:Transition, from:State) {
-//            self.transitions[StateTransitionKey(from.label, transition.label)] = transition
-//        }
-        
-        /**
-         Create or fetch a State object with label.
-
-         :param: label Label of state to create/find
-
-         :returns: If a State with label already exists this returns that state. Otherwise a new State object is created.
-         */
-        public func stateForLabel(label:StateLabel) -> State {
-            if let state = states[label] {
-                return state
-            }
-            else {
-                let state = State(label:label)
-                self.addState(state)
-                return state
-            }
-        }
-    }
-
-    public class State {
-        public let label:StateLabel
-        public var transitions:[TransitionLabel:Transition] = [:]
-        public var entryAction:Action?
-        public var exitAction:Action?
-
-        public init(label:StateLabel) {
-            self.label = label
-        }
-
-        public convenience init(label:StateLabel, transitions:[Transition]) {
-            self.init(label:label)
-            for t:Transition in transitions {
-                t.state = self
-                self.transitions[t.label] = t
-            }
-        }
-
-        public func addTransition(transition:Transition) {
-            self.transitions[transition.label] = transition
-        }
-    }
-
-    public class Transition {
-        public var label:TransitionLabel
-        public weak var state:State!
-        public var nextState:State!
-        public var guard:TransitionGuard?
-        public var action:Action?
-
-        public init(label:TransitionLabel, nextState:State) {
-            self.label = label
-            self.nextState = nextState
-        }
-    }
-
-    public let definition : Definition
-    public var state : State
+    public let definition : _Definition
+    public var state : _State
 
     /// Set this to a func or closure that accepts AnyObject (e.g. println)
     public var logger : Logger?
@@ -114,7 +31,7 @@ public class StateMachine {
         }
     }
 
-    public init(definition:Definition) {
+    public init(definition:_Definition) {
         self.definition = definition
         self.state = self.definition.initialState
     }
@@ -159,21 +76,116 @@ public class StateMachine {
     }
 }
 
-public func += (lhs:StateMachine.Definition, rhs:StateMachine.State) {
-    lhs.addState(rhs)
+/**
+ A State Machine definition.
+ 
+ Generally you create a definition, add states and transitions to it and then use the defintion to create the state machine.
+ */
+public class Definition <StateLabel:Hashable, TransitionLabel:Hashable> {
+
+    typealias _State = State <StateLabel, StateLabel>
+    typealias _Transition = Transition <StateLabel, StateLabel>
+
+    public var states : [StateLabel:_State] = [:]
+    
+    /**
+        Initial state, if you do not define an initial state the first state added to the definition is assumed to be the initial.
+    */
+    public var initialState : _State!
+
+    public init() {
+    }
+
+    public func addState(state:_State) {
+        if self.initialState == nil {
+            self.initialState = state
+        }
+        self.states[state.label] = state
+    }
+
+//        public func addTransition(transition:Transition, from:State) {
+//            self.transitions[StateTransitionKey(from.label, transition.label)] = transition
+//        }
+    
+    /**
+     Create or fetch a State object with label.
+
+     :param: label Label of state to create/find
+
+     :returns: If a State with label already exists this returns that state. Otherwise a new State object is created.
+     */
+    public func stateForLabel(label:StateLabel) -> _State {
+        if let state = states[label] {
+            return state
+        }
+        else {
+            let state = _State(label:label)
+            self.addState(state)
+            return state
+        }
+    }
 }
 
-extension StateMachine.State: Printable {
+public class State <StateLabel:Hashable, TransitionLabel:Hashable> {
+
+    typealias _Transition = Transition <StateLabel, TransitionLabel>
+    public typealias Action = (state:State) -> (Void)
+
+    public let label:StateLabel
+    public var transitions:[TransitionLabel:_Transition] = [:]
+    public var entryAction:Action?
+    public var exitAction:Action?
+
+    public init(label:StateLabel) {
+        self.label = label
+    }
+
+    public convenience init(label:StateLabel, transitions:[_Transition]) {
+        self.init(label:label)
+        for t:Transition in transitions {
+            t.state = self
+            self.transitions[t.label] = t
+        }
+    }
+
+    public func addTransition(transition:_Transition) {
+        self.transitions[transition.label] = transition
+    }
+}
+
+public class Transition <StateLabel:Hashable, TransitionLabel:Hashable> {
+
+    typealias _State = State <StateLabel, TransitionLabel>
+
+    public typealias TransitionGuard = (state:_State) -> (Bool)
+
+    public var label:TransitionLabel
+    public weak var state:_State!
+    public var nextState:_State!
+    public var guard:TransitionGuard?
+    public var action:_State.Action?
+
+    public init(label:TransitionLabel, nextState:_State) {
+        self.label = label
+        self.nextState = nextState
+    }
+}
+
+//public func += (lhs:StateMachine.Definition, rhs:StateMachine.State) {
+//    lhs.addState(rhs)
+//}
+
+extension State: Printable {
     public var description: String { get { return "State(\(label))" } }
 }
 
-extension StateMachine.Transition: Printable {
+extension Transition: Printable {
     public var description: String { get { return "Transition(\(label))" } }
 }
 
 // MARK: Visual Format
 
-public extension StateMachine.Definition {
+public extension Definition {
 
     func processDefinitionFormats(string:String) -> Bool {
         for string in string.componentsSeparatedByString(";") {
@@ -186,7 +198,7 @@ public extension StateMachine.Definition {
 
                 let state = self.stateForLabel(stateLabel)
                 let nextState = self.stateForLabel(nextStateLabel)
-                let transition = StateMachine.Transition(label:transitionLabel, nextState:nextState)
+                let transition = Transition(label:transitionLabel, nextState:nextState)
 
                 state.addTransition(transition)
                 
@@ -210,7 +222,7 @@ public extension StateMachine.Definition {
 
 // MARK: Export
 
-public extension StateMachine.Definition {
+public extension Definition {
 
     func graphViz() -> String {
         var dot = "digraph {\n"
