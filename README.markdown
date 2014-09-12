@@ -16,7 +16,7 @@ You define the states and transitions using a simple domain specific language:
     machineDefinition.processDefinitionFormats("unlocked -> locked (push)")
     machineDefinition.processDefinitionFormats("unlocked -> unlocked (coin)")
 
-You can also define the states and transitions without the domain specific language.
+You can also define the states and transitions without the domain specific language:
 
     // TODO: Example forthcoming (code in flux)
 
@@ -28,7 +28,7 @@ Labels are currently just Swift strings (you should generally just stick to non-
 
 You can also combine definitions in one string by separating them with a semicolon (this could be handy when loading a state machine definition from disk).
 
-You set the state machine definition's initial state. If you don't set the initial state - the first state defined will be assumed to be the initial state. It is recommeneded you set the initial state explicitly
+You set the state machine definition's initial state. If you don't set the initial state - the first state defined will be assumed to be the initial state. It is recommeneded you set the initial state explicitly:
 
     machineDefinition.initialState = machineDefinition.states["locked"]
 
@@ -55,13 +55,13 @@ You can cause the state machine to log transitions (and other events):
 
     machine.logger = println
 
-## Adding "actions" to State Machines
+## Adding Actions and Guards to State Machine Definitions
 
 You can access the states of a definition via the 'states' property:
 
     let unlockedState = machineDefinition.states["unlocked"]
     
-And you can access the transitions of a state via the 'transitions' property
+And you can access the transitions of a state via the 'transitions' property:
 
     let transition = unlockedState!.transitions["push"]
     
