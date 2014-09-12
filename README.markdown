@@ -70,11 +70,11 @@ Which outputs:
     unlocked -> locked (push);
     unlocked -> unlocked (coin);
 
-You can output a [GraphViz](http://graphviz.org) .dot file as like so:
+You can output a [GraphViz](http://graphviz.org) .dot file like so:
 
     println(machineDefinition.graphViz())
 
-The dot file looks like:
+A generated dot file looks like:
 
     digraph {
         node [shape=circle, height=1, width=1]
@@ -88,7 +88,7 @@ The dot file looks like:
         locked -> locked [label="push"]
     }
     
-And you can use GraphViz (brew install graphviz) to generate an image file from the dot file:
+And you can then use GraphViz (brew install graphviz) to generate an image file from the dot file:
 
     schwa@mouse ~> dot test.dot -Tpng > test.png
 
