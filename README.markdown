@@ -24,7 +24,7 @@ The definition format is a simple domain specific language of the form:
 
     <initial state label> -> <next state label> (<transition label>)
 
-Labels are currently just Swift strings (you should generally just stick to non-special characters in labels for now). In the a future version of this project I intend labels to be any user definable type (most usefully: enums).
+Labels are currently just Swift strings (you should generally just stick to non-special characters in labels for now). In a future version of this project I intend labels to be any user definable type (most usefully: enums).
 
 You can also combine definitions in one string by separating them with a semicolon (this could be handy when loading a state machine definition from disk).
 
