@@ -41,7 +41,7 @@ And this outputs:
     unlocked -> locked (push);
     unlocked -> unlocked (coin);
 
-You can output a GraphViz .dot file as like so:
+You can output a [GraphViz](http://graphviz.org) .dot file as like so:
 
     println(machineDefinition.graphViz())
 
@@ -63,15 +63,15 @@ And you can use GraphViz (brew install graphviz) to generate an image from the d
 
     schwa@mouse ~> dot test.dot -Tpng > test.png
 
-The "turnstile" definition looks like:
+The "turnstile" definition state diagram looks like:
 
 ![test.png](test.png)
 
 ## TODO
 
-Both the State and Transition classes need to be "dummed" down and the logic moved into the main Definition object - perhaps as an transition table. This would allow definitions to be easily changed on the fly.
+Both the State and Transition classes need to be "dummed" down and the logic moved into the main Definition object - perhaps as a transition table. This would allow definitions to be easily changed on the fly.
 
-## Labels
+### Labels
 
 States and transitions currently use a String as the label type. It would be great if instead of Strings the user could use any Swift type as a label - for example user defined enums. To do this the code should be rewritten to use Swift generics instead. Unfortunately Swift currently cannot use nested classes and generics.
 
