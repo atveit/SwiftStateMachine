@@ -10,7 +10,6 @@ import Foundation
 
 // MARK: Machine
 
-
 public class StateMachine {
 
     public typealias StateLabel = String
@@ -133,18 +132,15 @@ public class StateMachine {
 
     public func performTransition(transitionLabel:TransitionLabel) -> Bool {
         if let transition = self.state.transitions[transitionLabel] {
-            if let guard = transition.guard {
-                if guard(state:self.state) == false {
-                    self.log("Transition guard prevented transition")
-                    return false
-                }
+            if self.canPerformTransition(transitionLabel) == false {
+                return false
             }
 
             if let action = self.state.exitAction {
                 action(state:self.state)
             }
             let newState = transition.nextState
-//            self.log("\(transition.description): from \(state.description) to new \(newState.description)")
+            self.log("\(transition.description): from \(state.description) to new \(newState.description)")
 
             self.state = newState
             if let action = self.state.entryAction {
@@ -193,6 +189,8 @@ public extension StateMachine.Definition {
                 let transition = StateMachine.Transition(label:transitionLabel, nextState:nextState)
 
                 state.addTransition(transition)
+                
+                return true
             }
         }
         return false
@@ -237,8 +235,6 @@ public extension StateMachine.Definition {
         return dot
     }
 }
-
-// All this because (Hashable, Hashable) isn't itself Hashable
 
 // #############################################################################
 
