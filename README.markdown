@@ -2,7 +2,7 @@
 
 Set of Swift classes for building and operating a state machine
 
-You define a state machine like so:
+The following Swift code defines a state machine based on [Wikipedia's "Turnstile" example](https://en.wikipedia.org/wiki/Finite-state_machine#Example:_a_turnstile):
 
     var machineDefinition = StateMachine.Definition()
     machineDefinition.processDefinitionFormats("locked -> locked (push)")
@@ -11,15 +11,21 @@ You define a state machine like so:
     machineDefinition.processDefinitionFormats("unlocked -> unlocked (coin)")
     machineDefinition.initialState = machineDefinition.states["locked"]
 
+You can also define the states and transitions without the domain specific language.
+
+    // TODO: Example forthcoming (code in flux)
+
 The definition format is a simple domain specific language of the form:
 
-    <initial state label> -> <next state label> (<transition label>)
+_<initial state label>_ -> _<next state label>_ (_<transition label>_)
 
-You can combine definitions in one string by separating them with the a semicolon
+You can also combine definitions in one string by separating them with a semicolon.
 
 You instantiate a state machine with a definition like so:
 
     var machine = StateMachine(definition:machineDefinition)
+
+Because the state machine definition is kept separate from the state machine itself you can have multiple state machine instances all sharing a single definition.
 
 You can then perform transitions between states:
 
@@ -29,6 +35,27 @@ You can then perform transitions between states:
 You can cause the state machine to log transitions (and other events):
 
     machine.logger = println
+
+You can access the states of a defintion via the 'states' property:
+
+    let unlockedState = machineDefinition.states["unlocked"]
+    
+And you can access the transitions of that state via the 'transitions' property
+
+    let transition = unlockedState!.transitions["push"]
+    
+You can set "action" closures on transitions that trigger when a transition is performed:
+
+    machineDefinition.states["unlocked"]!.transitions["coin"]!.action = { t in println("#### Stile already unlocked. Coin rejected.") }
+    machineDefinition.states["locked"]!.transitions["push"]!.action = { t in println("#### Stile locked. Try putting a coin in.") }
+
+You can set "entryAction" closures on states that fire when the state is entered. COnversely there are also "exitAction" closures that fire when the state is left:
+
+    machineDefinition.states["unlocked"]!.entryAction = { t in println("### Clunk!") }
+
+There are also "transitionGuard" closures on state that prevent transitions from occuring:
+
+    // TODO: Example forthcoming
 
 You can print all definitions like so:
 
