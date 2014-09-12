@@ -2,14 +2,19 @@
 
 Set of Swift classes for building and operating a state machine
 
+## Usage
+
 The following Swift code defines a state machine based on [Wikipedia's "Turnstile" example](https://en.wikipedia.org/wiki/Finite-state_machine#Example:_a_turnstile):
+
+## Defining a State Machine
+
+You define the states and transitions using a simple domain specific language:
 
     var machineDefinition = StateMachine.Definition()
     machineDefinition.processDefinitionFormats("locked -> locked (push)")
     machineDefinition.processDefinitionFormats("locked -> unlocked (coin)")
     machineDefinition.processDefinitionFormats("unlocked -> locked (push)")
     machineDefinition.processDefinitionFormats("unlocked -> unlocked (coin)")
-    machineDefinition.initialState = machineDefinition.states["locked"]
 
 You can also define the states and transitions without the domain specific language.
 
@@ -22,6 +27,12 @@ The definition format is a simple domain specific language of the form:
 Labels are currently just Swift strings (you should generally just stick to non-special characters in labels for now). In the a future version of this project I intend labels to be any user definable type (most usefully: enums).
 
 You can also combine definitions in one string by separating them with a semicolon (this could be handy when loading a state machine definition from disk).
+
+You set the state machine definition's initial state. If you don't set the initial state - the first state defined will be assumed to be the initial state. It is recommeneded you set the initial state explicitly
+
+    machineDefinition.initialState = machineDefinition.states["locked"]
+
+## Interacting with State Machines
 
 You instantiate a state machine with a definition like so:
 
@@ -44,6 +55,8 @@ You can cause the state machine to log transitions (and other events):
 
     machine.logger = println
 
+## Adding "actions" to State Machines
+
 You can access the states of a definition via the 'states' property:
 
     let unlockedState = machineDefinition.states["unlocked"]
@@ -64,6 +77,8 @@ You can set "_entryAction_" closures on states that execute when the state is en
 There are also "_transitionGuard_" closures on states that prevent transitions from occuring:
 
     // TODO: Example forthcoming
+
+## Outputing State Machine Definitions
 
 You can print all definitions like so:
 
