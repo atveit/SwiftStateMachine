@@ -17,7 +17,7 @@ You can also define the states and transitions without the domain specific langu
 
 The definition format is a simple domain specific language of the form:
 
-_<initial state label>_ -> _<next state label>_ (_<transition label>_)
+    <initial state label> -> <next state label> (<transition label>)
 
 You can also combine definitions in one string by separating them with a semicolon.
 
