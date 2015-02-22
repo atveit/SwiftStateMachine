@@ -107,7 +107,7 @@ public class StateMachine {
     /// Set this to a func or closure that accepts AnyObject (e.g. println)
     public var logger : Logger?
 
-    internal func log(closure: @autoclosure () -> AnyObject) {
+    internal func log(@autoclosure closure:  () -> AnyObject) {
         if let logger = logger {
             let o:AnyObject = closure()
             logger(o)
@@ -178,7 +178,7 @@ public extension StateMachine.Definition {
     func processDefinitionFormats(string:String) -> Bool {
         for string in string.componentsSeparatedByString(";") {
             let expression = NSRegularExpression(pattern:"([a-z]+) -> ([a-z]+) \\(([a-z]+)\\)", options:.CaseInsensitive, error:nil)
-            let match = expression.firstMatchInString(string, options:NSMatchingOptions(), range:NSMakeRange(0, string._bridgeToObjectiveC().length))
+            let match = expression?.firstMatchInString(string, options:NSMatchingOptions(), range:NSMakeRange(0, string._bridgeToObjectiveC().length))
             if let match = match {
                 let stateLabel = string._bridgeToObjectiveC().substringWithRange(match.rangeAtIndex(1))
                 let nextStateLabel = string._bridgeToObjectiveC().substringWithRange(match.rangeAtIndex(2))
