@@ -122,9 +122,9 @@ public class StateMachine {
     public func canPerformTransition(transitionLabel:TransitionLabel) -> Bool {
         if let transition = self.state.transitions[transitionLabel] {
             if let guard = transition.guard {
-                if guard(state:self.state) == true {
-                    return true
-                }
+                return guard(state:self.state)
+            } else {
+                return true
             }
         }
         return false
