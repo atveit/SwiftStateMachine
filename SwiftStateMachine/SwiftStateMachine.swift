@@ -107,7 +107,7 @@ public class StateMachine {
     /// Set this to a func or closure that accepts AnyObject (e.g. println)
     public var logger : Logger?
 
-    internal func log(@autoclosure closure:  () -> AnyObject) {
+    internal func log(@autoclosure closure: () -> AnyObject) {
         if let logger = logger {
             let o:AnyObject = closure()
             logger(o)
