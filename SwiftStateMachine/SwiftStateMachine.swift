@@ -49,9 +49,9 @@ public class StateMachine {
         /**
          Create or fetch a State object with label.
 
-         :param: label Label of state to create/find
+         - parameter label: Label of state to create/find
 
-         :returns: If a State with label already exists this returns that state. Otherwise a new State object is created.
+         - returns: If a State with label already exists this returns that state. Otherwise a new State object is created.
          */
         public func stateForLabel(label:StateLabel) -> State {
             if let state = states[label] {
@@ -92,7 +92,7 @@ public class StateMachine {
         public var label:TransitionLabel
         public weak var state:State!
         public var nextState:State!
-        public var guard:TransitionGuard?
+        public var `guard`:TransitionGuard?
         public var action:Action?
 
         public init(label:TransitionLabel, nextState:State) {
@@ -121,8 +121,8 @@ public class StateMachine {
 
     public func canPerformTransition(transitionLabel:TransitionLabel) -> Bool {
         if let transition = self.state.transitions[transitionLabel] {
-            if let guard = transition.guard {
-                return guard(state:self.state)
+            if let `guard` = transition.`guard` {
+                return `guard`(state:self.state)
             } else {
                 return true
             }
@@ -163,11 +163,11 @@ public func += (lhs:StateMachine.Definition, rhs:StateMachine.State) {
     lhs.addState(rhs)
 }
 
-extension StateMachine.State: Printable {
+extension StateMachine.State: CustomStringConvertible {
     public var description: String { get { return "State(\(label))" } }
 }
 
-extension StateMachine.Transition: Printable {
+extension StateMachine.Transition: CustomStringConvertible {
     public var description: String { get { return "Transition(\(label))" } }
 }
 
@@ -177,7 +177,7 @@ public extension StateMachine.Definition {
 
     func processDefinitionFormats(string:String) -> Bool {
         for string in string.componentsSeparatedByString(";") {
-            let expression = NSRegularExpression(pattern:"([a-z]+) -> ([a-z]+) \\(([a-z]+)\\)", options:.CaseInsensitive, error:nil)
+            let expression = try? NSRegularExpression(pattern:"([a-z]+) -> ([a-z]+) \\(([a-z]+)\\)", options:.CaseInsensitive)
             let match = expression?.firstMatchInString(string, options:NSMatchingOptions(), range:NSMakeRange(0, string._bridgeToObjectiveC().length))
             if let match = match {
                 let stateLabel = string._bridgeToObjectiveC().substringWithRange(match.rangeAtIndex(1))
@@ -203,8 +203,8 @@ public extension StateMachine.Definition {
                 lines.append("\(state.label) -> \(transition.nextState.label) (\(transition.label));")
             }
         }
-        lines.sort(<)
-        return "\n".join(lines)
+        lines.sortInPlace(<)
+        return lines.joinWithSeparator("\n")
     }
 }
 

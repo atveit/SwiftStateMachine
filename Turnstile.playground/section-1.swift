@@ -15,30 +15,31 @@ machineDefinition.processDefinitionFormats("unlocked -> locked (push)")
 machineDefinition.processDefinitionFormats("unlocked -> unlocked (coin)")
 machineDefinition.initialState = machineDefinition.states["locked"]
 
-machineDefinition.states["unlocked"]!.transitions["coin"]!.action = { t in println("#### Stile already unlocked. Coin rejected.") }
-machineDefinition.states["locked"]!.transitions["push"]!.action = { t in println("#### Stile locked. Try putting a coin in.") }
+machineDefinition.states["unlocked"]!.transitions["coin"]!.action = { t in print("#### Stile already unlocked. Coin rejected.") }
+machineDefinition.states["locked"]!.transitions["push"]!.action = { t in print("#### Stile locked. Try putting a coin in.") }
 
-machineDefinition.states["unlocked"]!.entryAction = { t in println("### Clunk!") }
+machineDefinition.states["unlocked"]!.entryAction = { t in print("### Clunk!") }
 
-println(machineDefinition.definitionFormats())
-println(machineDefinition.graphViz())
+print(machineDefinition.definitionFormats())
+print(machineDefinition.graphViz())
 
 // MARK: Testing
 
 var machine = StateMachine(definition:machineDefinition)
-machine.logger = println
+machine.logger = { print($0) }
 
-println(machine.state)
+print(machine.state)
 machine.performTransition("push")
-println(machine.state)
+print(machine.state)
 machine.performTransition("coin")
-println(machine.state)
+print(machine.state)
 machine.performTransition("push")
-println(machine.state)
+print(machine.state)
 machine.performTransition("coin")
-println(machine.state)
+print(machine.state)
 machine.performTransition("coin")
-println(machine.state)
+print(machine.state)
 machine.performTransition("coin")
-println(machine.state)
+print(machine.state)
+
 
