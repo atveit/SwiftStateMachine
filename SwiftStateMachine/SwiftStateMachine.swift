@@ -15,7 +15,7 @@ public class StateMachine {
     public typealias StateLabel = String
     public typealias TransitionLabel = String
     public typealias Action = (state:State) -> (Void)
-    public typealias TransitionGuard = (state:State) -> (Bool)
+    public typealias TransitionGate = (state:State) -> Bool
     public typealias Logger = (AnyObject) -> Void
 
     /**
@@ -89,11 +89,11 @@ public class StateMachine {
     }
 
     public class Transition {
-        public var label:TransitionLabel
-        public weak var state:State!
-        public var nextState:State!
-        public var `guard`:TransitionGuard?
-        public var action:Action?
+        public var label: TransitionLabel
+        public weak var state: State!
+        public var nextState: State!
+        public var gate: TransitionGate?
+        public var action: Action?
 
         public init(label:TransitionLabel, nextState:State) {
             self.label = label
@@ -121,8 +121,8 @@ public class StateMachine {
 
     public func canPerformTransition(transitionLabel:TransitionLabel) -> Bool {
         if let transition = self.state.transitions[transitionLabel] {
-            if let `guard` = transition.`guard` {
-                return `guard`(state:self.state)
+            if let gate = transition.gate {
+                return gate(state:self.state)
             } else {
                 return true
             }
