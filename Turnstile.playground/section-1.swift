@@ -4,15 +4,15 @@ import Foundation
 
 // MARK: Setup
 
-// This this isn't working - compile the framework first!
+// If this isn't working - compile the framework first!
 import SwiftStateMachine
 
 var machineDefinition = StateMachine.Definition()
 
-machineDefinition.processDefinitionFormats("locked -> locked (push)")
-machineDefinition.processDefinitionFormats("locked -> unlocked (coin)")
-machineDefinition.processDefinitionFormats("unlocked -> locked (push)")
-machineDefinition.processDefinitionFormats("unlocked -> unlocked (coin)")
+try! machineDefinition.processDefinitionFormats("locked -> locked (push)")
+try! machineDefinition.processDefinitionFormats("locked -> unlocked (coin)")
+try! machineDefinition.processDefinitionFormats("unlocked -> locked (push)")
+try! machineDefinition.processDefinitionFormats("unlocked -> unlocked (coin)")
 machineDefinition.initialState = machineDefinition.states["locked"]
 
 machineDefinition.states["unlocked"]!.transitions["coin"]!.action = { t in print("#### Stile already unlocked. Coin rejected.") }
@@ -28,18 +28,19 @@ print(machineDefinition.graphViz())
 var machine = StateMachine(definition:machineDefinition)
 machine.logger = { print($0) }
 
-print(machine.state)
-machine.performTransition("push")
-print(machine.state)
-machine.performTransition("coin")
-print(machine.state)
-machine.performTransition("push")
-print(machine.state)
-machine.performTransition("coin")
-print(machine.state)
-machine.performTransition("coin")
-print(machine.state)
-machine.performTransition("coin")
-print(machine.state)
+print(machine.currentState)
+try! machine.performTransition("push")
+print(machine.currentState)
+try! machine.performTransition("coin")
+print(machine.currentState)
+try! machine.performTransition("push")
+print(machine.currentState)
+try! machine.performTransition("coin")
+print(machine.currentState)
+try! machine.performTransition("coin")
+print(machine.currentState)
+try! machine.performTransition("coin")
+print(machine.currentState)
+
 
 

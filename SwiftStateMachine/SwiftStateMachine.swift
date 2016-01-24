@@ -12,11 +12,17 @@ import Foundation
 
 public class StateMachine {
 
+    public enum Error: ErrorType {
+        case CannotPerformTransition
+        case NoTransition
+        case InvalidRule
+    }
+
     public typealias StateLabel = String
     public typealias TransitionLabel = String
-    public typealias Action = (state:State) -> (Void)
-    public typealias TransitionGate = (state:State) -> Bool
-    public typealias Logger = (AnyObject) -> Void
+    public typealias Action = State -> Void
+    public typealias TransitionGate = State -> Bool
+    public typealias Logger = AnyObject -> Void
 
     /**
      A State Machine definition.
@@ -25,25 +31,27 @@ public class StateMachine {
      */
     public class Definition {
     
-        public var states : [StateLabel:State] = [:]
+        public private (set) var states: [StateLabel: State] = [:]
         
         /**
             Initial state, if you do not define an initial state the first state added to the definition is assumed to be the initial.
         */
-        public var initialState : State!
+        public var initialState: State!
 
-        public init() {
+        public init(states: [StateLabel: State] = [:], initialState: State! = nil) {
+            self.states = states
+            self.initialState = initialState
         }
 
-        public func addState(state:State) {
-            if self.initialState == nil {
-                self.initialState = state
+        public func addState(state: State) {
+            if initialState == nil {
+                initialState = state
             }
-            self.states[state.label] = state
+            states[state.label] = state
         }
 
-//        public func addTransition(transition:Transition, from:State) {
-//            self.transitions[StateTransitionKey(from.label, transition.label)] = transition
+//        public func addTransition(transition: Transition, from: State) {
+//            transitions[StateTransitionKey(from.label, transition.label)] = transition
 //        }
         
         /**
@@ -53,76 +61,65 @@ public class StateMachine {
 
          - returns: If a State with label already exists this returns that state. Otherwise a new State object is created.
          */
-        public func stateForLabel(label:StateLabel) -> State {
+        public func stateForLabel(label: StateLabel) -> State {
             if let state = states[label] {
                 return state
             }
             else {
-                let state = State(label:label)
-                self.addState(state)
+                let state = State(label: label)
+                addState(state)
                 return state
             }
         }
     }
 
     public class State {
-        public let label:StateLabel
-        public var transitions:[TransitionLabel:Transition] = [:]
-        public var entryAction:Action?
-        public var exitAction:Action?
+        public let label: StateLabel
+        public private (set) var transitions: [TransitionLabel: Transition] = [:]
+        public var entryAction: Action?
+        public var exitAction: Action?
 
-        public init(label:StateLabel) {
+        public init(label: StateLabel, transitions: [Transition] = []) {
             self.label = label
-        }
-
-        public convenience init(label:StateLabel, transitions:[Transition]) {
-            self.init(label:label)
-            for t:Transition in transitions {
-                t.state = self
-                self.transitions[t.label] = t
+            for transition in transitions {
+                addTransition(transition)
             }
         }
 
-        public func addTransition(transition:Transition) {
-            self.transitions[transition.label] = transition
+        public func addTransition(transition: Transition) {
+            transition.state = self
+            transitions[transition.label] = transition
         }
     }
 
     public class Transition {
-        public var label: TransitionLabel
-        public weak var state: State!
-        public var nextState: State!
+        public let label: TransitionLabel
+        public private (set) weak var state: State!
+        public let nextState: State!
         public var gate: TransitionGate?
         public var action: Action?
 
-        public init(label:TransitionLabel, nextState:State) {
+        public init(label: TransitionLabel, nextState: State) {
             self.label = label
             self.nextState = nextState
         }
     }
 
-    public let definition : Definition
-    public var state : State
+    public let definition: Definition
+    public private (set) var currentState: State
 
     /// Set this to a func or closure that accepts AnyObject (e.g. println)
-    public var logger : Logger?
+    public var logger: Logger?
 
-    internal func log(@autoclosure closure: () -> AnyObject) {
-        if let logger = logger {
-            let o:AnyObject = closure()
-            logger(o)
-        }
-    }
-
-    public init(definition:Definition) {
+    public init(definition: Definition) {
         self.definition = definition
-        self.state = self.definition.initialState
+        self.currentState = self.definition.initialState
     }
 
-    public func canPerformTransition(transitionLabel:TransitionLabel) -> Bool {
-        if let transition = self.state.transitions[transitionLabel] {
+    public func canPerformTransition(transition: Transition) -> Bool {
+        if let transition = currentState.transitions[transition.label] {
             if let gate = transition.gate {
-                return gate(state:self.state)
+                return gate(currentState)
             } else {
                 return true
             }
@@ -130,75 +127,95 @@ public class StateMachine {
         return false
     }
 
-    public func performTransition(transitionLabel:TransitionLabel) -> Bool {
-        if let transition = self.state.transitions[transitionLabel] {
-            if self.canPerformTransition(transitionLabel) == false {
-                return false
-            }
+    public func canPerformTransition(transitionLabel: TransitionLabel) throws -> Bool {
+        guard let transition = currentState.transitions[transitionLabel] else {
+            throw Error.NoTransition
+        }
 
-            if let action = self.state.exitAction {
-                action(state:self.state)
-            }
-            let newState = transition.nextState
-            self.log("\(transition.description): from \(state.description) to new \(newState.description)")
-
-            self.state = newState
-            if let action = self.state.entryAction {
-                action(state:self.state)
-            }
-
-            if let action = transition.action {
-                action(state:self.state)
-            }
-
-            return true
+        if let gate = transition.gate {
+            return gate(currentState)
         } else {
-            self.log("Cannot find transition called \(transitionLabel)")
-            return false
+            return true
+        }
+    }
+
+    public func performTransition(transitionLabel: TransitionLabel) throws {
+        guard let transition = currentState.transitions[transitionLabel] else {
+            throw Error.NoTransition
+        }
+
+        guard canPerformTransition(transition) == true else {
+            throw Error.CannotPerformTransition
+        }
+
+        if let action = currentState.exitAction {
+            action(currentState)
+        }
+
+        let newState = transition.nextState
+        log("\(transition.description): from \(currentState.description) to new \(newState.description)")
+
+        currentState = newState
+        if let action = currentState.entryAction {
+            action(currentState)
+        }
+
+        if let action = transition.action {
+            action(currentState)
+        }
+    }
+
+    internal func log(@autoclosure closure: () -> AnyObject) {
+        if let logger = logger {
+            let o: AnyObject = closure()
+            logger(o)
         }
     }
 }
 
-public func += (lhs:StateMachine.Definition, rhs:StateMachine.State) {
+public func += (lhs: StateMachine.Definition, rhs: StateMachine.State) {
     lhs.addState(rhs)
 }
 
 extension StateMachine.State: CustomStringConvertible {
-    public var description: String { get { return "State(\(label))" } }
+    public var description: String {
+        return "State(\(label))"
+    }
 }
 
 extension StateMachine.Transition: CustomStringConvertible {
-    public var description: String { get { return "Transition(\(label))" } }
+    public var description: String {
+        return "Transition(\(label))"
+    }
 }
 
 // MARK: Visual Format
 
 public extension StateMachine.Definition {
 
-    func processDefinitionFormats(string:String) -> Bool {
+    func processDefinitionFormats(string: String) throws {
         for string in string.componentsSeparatedByString(";") {
-            let expression = try? NSRegularExpression(pattern:"([a-z]+) -> ([a-z]+) \\(([a-z]+)\\)", options:.CaseInsensitive)
-            let match = expression?.firstMatchInString(string, options:NSMatchingOptions(), range:NSMakeRange(0, string._bridgeToObjectiveC().length))
-            if let match = match {
-                let stateLabel = string._bridgeToObjectiveC().substringWithRange(match.rangeAtIndex(1))
-                let nextStateLabel = string._bridgeToObjectiveC().substringWithRange(match.rangeAtIndex(2))
-                let transitionLabel = string._bridgeToObjectiveC().substringWithRange(match.rangeAtIndex(3))
-
-                let state = self.stateForLabel(stateLabel)
-                let nextState = self.stateForLabel(nextStateLabel)
-                let transition = StateMachine.Transition(label:transitionLabel, nextState:nextState)
-
-                state.addTransition(transition)
-                
-                return true
+            let expression = try? NSRegularExpression(pattern: "([a-z]+) -> ([a-z]+) \\(([a-z]+)\\)", options: .CaseInsensitive)
+            guard let match = expression?.firstMatchInString(string, options: NSMatchingOptions(), range: NSMakeRange(0, string._bridgeToObjectiveC().length)) else {
+                throw StateMachine.Error.InvalidRule
             }
+
+            let stateLabel = (string as NSString).substringWithRange(match.rangeAtIndex(1))
+            let nextStateLabel = (string as NSString).substringWithRange(match.rangeAtIndex(2))
+            let transitionLabel = (string as NSString).substringWithRange(match.rangeAtIndex(3))
+
+            let state = stateForLabel(stateLabel)
+            let nextState = stateForLabel(nextStateLabel)
+            let transition = StateMachine.Transition(label: transitionLabel, nextState: nextState)
+
+            state.addTransition(transition)
         }
-        return false
     }
 
+
     func definitionFormats() -> String {
-        var lines:[String] = []
-        for state in self.states.values {
+        var lines: [String] = []
+        for state in states.values {
             for transition in state.transitions.values {
                 lines.append("\(state.label) -> \(transition.nextState.label) (\(transition.label));")
             }
@@ -219,13 +236,13 @@ public extension StateMachine.Definition {
 
         dot += "\tstart [label=\"\", shape=circle, style=filled, color=black, height=0.25, width=0.25]\n"
 
-        for state in self.states.values {
+        for state in states.values {
             dot += "\t\(state.label) [label=\"\(state.label)\"]\n"
         }
 
-        dot += "\tstart -> \(self.initialState.label)\n"
+        dot += "\tstart -> \(initialState.label)\n"
 
-        for state in self.states.values {
+        for state in states.values {
             for transition in state.transitions.values {
                 dot += "\t\(state.label) -> \(transition.nextState.label) [label=\"\(transition.label)\"]\n"
             }
@@ -236,40 +253,4 @@ public extension StateMachine.Definition {
     }
 }
 
-// #############################################################################
 
-//typealias Column = [StateMachine.TransitionLabel:StateMachine.StateLabel]
-//typealias Table = [StateMachine.StateLabel:Column]
-//
-//var table = Table()
-//var allTransitionLabels:[StateMachine.TransitionLabel] = []
-//
-//for state in machineDefinition.states.values {
-//    table[state.label] = Column()
-//    for transition in state.transitions.values {
-//        if contains(allTransitionLabels, transition.label) == false {
-//            allTransitionLabels.append(transition.label)
-//        }
-//        table[state.label]![transition.label] = transition.nextState.label
-//    }
-//}
-//
-//print("\t")
-//println(" | ".join(machineDefinition.states.keys))
-//for transitionLabel in allTransitionLabels {
-//    print("\(transitionLabel): ")
-//
-//    let row = machineDefinition.states.keys.map {
-//        (stateLabel:StateMachine.StateLabel) -> String in
-//        if let newStateLabel = table[stateLabel]?[transitionLabel] {
-//            return newStateLabel
-//        }
-//        else {
-//            return "..."
-//        }
-//    }
-//
-//    println(" | ".join(row))
-//}
-
-// #############################################################################
