@@ -289,14 +289,14 @@ public extension StateMachine.Definition {
         dot += "\tstart [label=\"\", shape=circle, style=filled, color=black, height=0.25, width=0.25]\n"
 
         for state in states.values {
-            dot += "\t\(state.label) [label=\"\(state.label)\"]\n"
+            dot += "\t\"\(state.label)\" [label=\"\(state.label)\"]\n"
         }
 
-        dot += "\tstart -> \(initialState.label)\n"
+        dot += "\tstart -> \"\(initialState.label)\"\n"
 
         for state in states.values {
             for transition in state.transitions.values {
-                dot += "\t\(state.label) -> \(transition.nextState.label) [label=\"\(transition.label)\"]\n"
+                dot += "\t\"\(state.label)\" -> \"\(transition.nextState.label)\" [label=\"\(transition.label)\"]\n"
             }
         }
 
