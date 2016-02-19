@@ -1,0 +1,10 @@
+disabled_rules:
+- force_try
+- statement_position
+- valid_docs
+
+
+line_length: 160
+
+opt_in_rules:
+- empty_count

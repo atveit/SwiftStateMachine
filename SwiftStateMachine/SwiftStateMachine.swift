@@ -26,13 +26,13 @@ public class StateMachine {
 
     /**
      A State Machine definition.
-     
+
      Generally you create a definition, add states and transitions to it and then use the defintion to create the state machine.
      */
     public class Definition {
-    
+
         public private (set) var states: [StateLabel: State] = [:]
-        
+
         /**
             Initial state, if you do not define an initial state the first state added to the definition is assumed to be the initial.
         */
@@ -53,7 +53,7 @@ public class StateMachine {
 //        public func addTransition(transition: Transition, from: State) {
 //            transitions[StateTransitionKey(from.label, transition.label)] = transition
 //        }
-        
+
         /**
          Create or fetch a State object with label.
 
@@ -195,10 +195,10 @@ public extension StateMachine.Definition {
 	/**
 	 Take a string that contains one or more definitions in visual format,
 	 and import them sequentially into this definition.
-	
+
 	 Note: Ignores commented out lines, and ignores blank lines.
 	 This allows you to read a StateMachine definition from a file.
-	
+
 	 - see: README.markdown for a full EBNF grammar.
 	 */
     func processDefinitionFormats(string: String) throws {
@@ -207,17 +207,18 @@ public extension StateMachine.Definition {
 			.componentsSeparatedByCharactersInSet(NSCharacterSet.newlineCharacterSet())
 			.filter { (line) -> Bool in
 				// Remove all commented-out lines & whitespace only lines
-				return !(line.hasPrefix("#") || line.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceCharacterSet()).characters.count == 0)
+				return !(line.hasPrefix("#") || line.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceCharacterSet()).characters.isEmpty)
 			}
 			.joinWithSeparator("") // Into a flat string of definitions, allowing definitions to span multiple lines
 			.componentsSeparatedByString(";") // Split into potential definitions
-			.filter { $0.characters.count > 0 } // Ditch empty lines (allows last definition to end with ';')
-		
+			.filter { $0.characters.isEmpty == false } // Ditch empty lines (allows last definition to end with ';')
+
 		var successfulCount = 0
         for string in definitionsList {
 			let identifier = "([a-z0-9_.\\-]+)"
             let expression = try? NSRegularExpression(pattern: "\(identifier) -> \(identifier) \\(\(identifier)\\)", options: .CaseInsensitive)
-            guard let match = expression?.firstMatchInString(string, options: NSMatchingOptions(), range: NSMakeRange(0, string._bridgeToObjectiveC().length)) else {
+            let searchRange = NSRange(location: 0, length: (string as NSString).length)
+            guard let match = expression?.firstMatchInString(string, options: NSMatchingOptions(), range: searchRange) else {
 				print("Error: InvalidRule. Definition found was `\(expression)` Halted parsing after \(successfulCount) valid rules.")
                 throw StateMachine.Error.InvalidRule
             }
@@ -253,19 +254,24 @@ public extension StateMachine.Definition {
 // Note: this only tests if the Definitions are structurally the same.
 // It does not test the gating logic is bound to the same block, for example.
 
-extension StateMachine.Definition : Equatable {}
-extension StateMachine.State : Equatable {}
-extension StateMachine.Transition : Equatable {}
+extension StateMachine.Definition : Equatable {
+}
 
-public func ==(lhs: StateMachine.Definition, rhs: StateMachine.Definition) -> Bool {
-	return lhs.initialState.label == rhs.initialState.label
-		&& lhs.states == rhs.states
+public func == (lhs: StateMachine.Definition, rhs: StateMachine.Definition) -> Bool {
+	return lhs.initialState.label == rhs.initialState.label && lhs.states == rhs.states
 }
-public func ==(lhs: StateMachine.State, rhs: StateMachine.State) -> Bool {
-	return lhs.label == rhs.label
-		&& lhs.transitions == rhs.transitions
+
+extension StateMachine.State : Equatable {
 }
-public func ==(lhs: StateMachine.Transition, rhs: StateMachine.Transition) -> Bool {
+
+public func == (lhs: StateMachine.State, rhs: StateMachine.State) -> Bool {
+	return lhs.label == rhs.label && lhs.transitions == rhs.transitions
+}
+
+extension StateMachine.Transition : Equatable {
+}
+
+public func == (lhs: StateMachine.Transition, rhs: StateMachine.Transition) -> Bool {
 	return lhs.label == rhs.label
 		// Test the labels for equality, because we don't want to infinitely recurse testing transitions!
 		&& lhs.state.label == rhs.state.label && lhs.nextState.label == rhs.nextState.label
@@ -298,5 +304,3 @@ public extension StateMachine.Definition {
         return dot
     }
 }
-
-

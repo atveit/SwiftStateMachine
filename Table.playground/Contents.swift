@@ -27,10 +27,10 @@ try! multiDefinition.processDefinitionFormats(stateMachineAsSingleString)
 // Assert they're equivalent
 assert(machineDefinition == multiDefinition)
 
-machineDefinition.states["unlocked"]!.transitions["coin"]!.action = { t in print("#### Stile already unlocked. Coin rejected.") }
-machineDefinition.states["locked"]!.transitions["push"]!.action = { t in print("#### Stile locked. Try putting a coin in.") }
+machineDefinition.states["unlocked"]!.transitions["coin"]!.action = { label in print("#### Stile already unlocked. Coin rejected.") }
+machineDefinition.states["locked"]!.transitions["push"]!.action = { label in print("#### Stile locked. Try putting a coin in.") }
 
-machineDefinition.states["unlocked"]!.entryAction = { t in print("### Clunk!") }
+machineDefinition.states["unlocked"]!.entryAction = { label in print("### Clunk!") }
 
 var str = "Hello, playground"
 
@@ -66,4 +66,3 @@ for transitionLabel in allTransitionLabels {
 
     print(row.joinWithSeparator(" | "))
 }
-

@@ -15,10 +15,10 @@ try! machineDefinition.processDefinitionFormats("unlocked -> locked (push)")
 try! machineDefinition.processDefinitionFormats("unlocked -> unlocked (coin)")
 machineDefinition.initialState = machineDefinition.states["locked"]
 
-machineDefinition.states["unlocked"]!.transitions["coin"]!.action = { t in print("#### Stile already unlocked. Coin rejected.") }
-machineDefinition.states["locked"]!.transitions["push"]!.action = { t in print("#### Stile locked. Try putting a coin in.") }
+machineDefinition.states["unlocked"]!.transitions["coin"]!.action = { label in print("#### Stile already unlocked. Coin rejected.") }
+machineDefinition.states["locked"]!.transitions["push"]!.action = { label in print("#### Stile locked. Try putting a coin in.") }
 
-machineDefinition.states["unlocked"]!.entryAction = { t in print("### Clunk!") }
+machineDefinition.states["unlocked"]!.entryAction = { label in print("### Clunk!") }
 
 print(machineDefinition.definitionFormats())
 print(machineDefinition.graphViz())
@@ -41,6 +41,3 @@ try! machine.performTransition("coin")
 print(machine.currentState)
 try! machine.performTransition("coin")
 print(machine.currentState)
-
-
-
