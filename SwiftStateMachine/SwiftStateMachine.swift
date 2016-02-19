@@ -245,6 +245,29 @@ public extension StateMachine.Definition {
     }
 }
 
+// MARK: Equatable
+
+// Note: this only tests if the Definitions are structurally the same.
+// It does not test the gating logic is bound to the same block, for example.
+
+extension StateMachine.Definition : Equatable {}
+extension StateMachine.State : Equatable {}
+extension StateMachine.Transition : Equatable {}
+
+public func ==(lhs: StateMachine.Definition, rhs: StateMachine.Definition) -> Bool {
+	return lhs.initialState.label == rhs.initialState.label
+		&& lhs.states == rhs.states
+}
+public func ==(lhs: StateMachine.State, rhs: StateMachine.State) -> Bool {
+	return lhs.label == rhs.label
+		&& lhs.transitions == rhs.transitions
+}
+public func ==(lhs: StateMachine.Transition, rhs: StateMachine.Transition) -> Bool {
+	return lhs.label == rhs.label
+		// Test the labels for equality, because we don't want to infinitely recurse testing transitions!
+		&& lhs.state.label == rhs.state.label && lhs.nextState.label == rhs.nextState.label
+}
+
 // MARK: Export
 
 public extension StateMachine.Definition {
