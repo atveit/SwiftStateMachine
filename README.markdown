@@ -128,17 +128,35 @@ The "turnstile" definition state diagram looks like:
 
 ## State Machine Definition Domain Specific Language EBNF
 
-    letter = "A" | "B" | "C" | "D" | "E" | "F" | "G"
-           | "H" | "I" | "J" | "K" | "L" | "M" | "N"
-           | "O" | "P" | "Q" | "R" | "S" | "T" | "U"
-           | "V" | "W" | "X" | "Y" | "Z" ;
-
-    identifier = letter , { letter } ;
+    identifier = identifier_character { identifier_character } ;
 
     state_label = identifier ;
-
     transition_label = identifier ;
 
     definition = state_label , "->" , state_label , "(" , transition_label, ")"
 
+    valid_lines = definition {";"} | commented_line | blank_line
+
+    (* parse the valid_lines in the file, but generate a list of definitions by filtering *)
     definitions = definition { ";" , definition }
+
+    (* Below this point is the boilerplate of EBNF *)
+    identifier_character = letter | digit | safe_symbol ;
+
+    commented_line = comment_symbol , all_characters* , NEWLINE ;
+
+    letter = "A" | "B" | "C" | "D" | "E" | "F" | "G"
+           | "H" | "I" | "J" | "K" | "L" | "M" | "N"
+           | "O" | "P" | "Q" | "R" | "S" | "T" | "U"
+           | "V" | "W" | "X" | "Y" | "Z" | "a" | "b"
+           | "c" | "d" | "e" | "f" | "g" | "h" | "i"
+           | "j" | "k" | "l" | "m" | "n" | "o" | "p"
+           | "q" | "r" | "s" | "t" | "u" | "v" | "w"
+           | "x" | "y" | "z" ;
+    digit = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" ;
+    safe_symbol = "." | "-" | "_" ;
+    whitespace = ? all whitespace characters ? ;
+	all_characters = ? all visible characters ? ;
+    comment_symbol = "#" ;
+
+    blank_line = whitespace* , NEWLINE ;
