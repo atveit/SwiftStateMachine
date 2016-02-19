@@ -53,7 +53,7 @@ You can test if a transition is possible with _canPerformTransition_:
 
 You can cause the state machine to log transitions (and other events):
 
-    machine.logger = println
+    machine.logger = print
 
 ## Adding Actions and Guards to State Machine Definitions
 
@@ -67,12 +67,12 @@ And you can access the transitions of a state via the 'transitions' property:
     
 You can set "_action_" closures on transitions that execute when a transition is performed:
 
-    machineDefinition.states["unlocked"]!.transitions["coin"]!.action = { t in println("#### Stile already unlocked. Coin rejected.") }
-    machineDefinition.states["locked"]!.transitions["push"]!.action = { t in println("#### Stile locked. Try putting a coin in.") }
+    machineDefinition.states["unlocked"]!.transitions["coin"]!.action = { t in print("#### Stile already unlocked. Coin rejected.") }
+    machineDefinition.states["locked"]!.transitions["push"]!.action = { t in print("#### Stile locked. Try putting a coin in.") }
 
 You can set "_entryAction_" closures on states that execute when the state is entered. Conversely there are also "_exitAction_" closures that execute when the state is exited:
 
-    machineDefinition.states["unlocked"]!.entryAction = { t in println("### Clunk!") }
+    machineDefinition.states["unlocked"]!.entryAction = { t in print("### Clunk!") }
 
 There are also "_transitionGuard_" closures on states that prevent transitions from occuring:
 
@@ -82,7 +82,7 @@ There are also "_transitionGuard_" closures on states that prevent transitions f
 
 You can print all definitions like so:
 
-    println(machineDefinition.definitionFormats())
+    print(machineDefinition.definitionFormats())
 
 Which outputs:
 
@@ -93,7 +93,7 @@ Which outputs:
 
 You can output a [GraphViz](http://graphviz.org) .dot file like so:
 
-    println(machineDefinition.graphViz())
+    print(machineDefinition.graphViz())
 
 A generated dot file looks like:
 
