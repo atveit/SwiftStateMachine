@@ -11,7 +11,21 @@ try! machineDefinition.processDefinitionFormats("locked -> locked (push)")
 try! machineDefinition.processDefinitionFormats("locked -> unlocked (coin)")
 try! machineDefinition.processDefinitionFormats("unlocked -> locked (push)")
 try! machineDefinition.processDefinitionFormats("unlocked -> unlocked (coin)")
-machineDefinition.initialState = machineDefinition.states["locked"]
+
+// Demonstrate another way of expressing the above state machine (useful for reading from a file)
+var stateMachineAsSingleString =
+	"# Coin machine\n" + // Commented line
+	"locked -> locked (push);" +
+	"locked -> unlocked (coin); # trailing comment\n" +
+	"\n" +	// Blank line
+	"unlocked -> locked (push);\n" +
+	"unlocked -> unlocked (coin);"
+
+// Try to create an identical definition from a single multi-line string
+var multiDefinition = StateMachine.Definition()
+try! multiDefinition.processDefinitionFormats(stateMachineAsSingleString)
+// Assert they're equivalent
+assert(machineDefinition == multiDefinition)
 
 machineDefinition.states["unlocked"]!.transitions["coin"]!.action = { t in print("#### Stile already unlocked. Coin rejected.") }
 machineDefinition.states["locked"]!.transitions["push"]!.action = { t in print("#### Stile locked. Try putting a coin in.") }
