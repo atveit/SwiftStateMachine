@@ -13,9 +13,10 @@ try! machineDefinition.processDefinitionFormats("unlocked -> locked (push)")
 try! machineDefinition.processDefinitionFormats("unlocked -> unlocked (coin)")
 
 // Demonstrate another way of expressing the above state machine (useful for reading from a file)
-var stateMachineAsSingleString = "# Coin machine\n" + // Commented line
+var stateMachineAsSingleString =
+	"# Coin machine\n" + // Commented line
 	"locked -> locked (push);" +
-	"locked -> unlocked (coin);\n" +
+	"locked -> unlocked (coin); # trailing comment\n" +
 	"\n" +	// Blank line
 	"unlocked -> locked (push);\n" +
 	"unlocked -> unlocked (coin);"

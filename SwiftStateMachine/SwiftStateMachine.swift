@@ -202,9 +202,12 @@ public extension StateMachine.Definition {
 	 - see: README.markdown for a full EBNF grammar.
 	 */
     func processDefinitionFormats(string: String) throws {
-		let definitionsList = string.componentsSeparatedByCharactersInSet(NSCharacterSet.newlineCharacterSet()).filter { (line) -> Bool in
-			// Remove all commented-out lines & whitespace only lines
-			return !(line.hasPrefix("#") || line.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceCharacterSet()).characters.count == 0)
+		let definitionsList = string
+			.stringByReplacingOccurrencesOfString("#", withString: "\n#") // Allow comments to be on the same line as a definition
+			.componentsSeparatedByCharactersInSet(NSCharacterSet.newlineCharacterSet())
+			.filter { (line) -> Bool in
+				// Remove all commented-out lines & whitespace only lines
+				return !(line.hasPrefix("#") || line.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceCharacterSet()).characters.count == 0)
 			}
 			.joinWithSeparator("") // Into a flat string of definitions, allowing definitions to span multiple lines
 			.componentsSeparatedByString(";") // Split into potential definitions
