@@ -1,0 +1,29 @@
+# Example of how one might define a state machine for a purchase.
+
+# Imagine an automated ticket machine for some attraction
+
+booting -> waiting (system_ready);
+
+# Waiting is a stable state
+waiting -> waiting (cancel_eject); # User hit cancel, but we weren't in a transaction, refresh the display, but do nothing else
+waiting -> wait_for_pin (insert_card);
+wait_for_pin -> waiting (cancel_eject);
+
+wait_for_pin -> checking (input_pin); # Needs to validate the pin code matches
+
+# checking should be a transient state, that verifies balance & reserves funds
+checking -> rejected (insufficient_funds);
+rejected -> waiting (cancel_eject);
+
+# pending is a stable state - display shows how many tickets & transaction sum
+checking -> pending (preapprove); # Needs to reserve the requested funds
+pending -> purchased (confirm_purchase); # Needs to consume reserved funds
+
+pending -> waiting (cancel_eject);
+
+# These need to verify & adjust the requested funds
+pending -> checking (add_ticket);
+pending -> pending (remove_ticket); # If you were previously valid, we don't need to check anything
+
+# purchased is a transient state that triggers the printer
+purchased -> waiting (print_spooled);

@@ -74,9 +74,23 @@ You can set "_entryAction_" closures on states that execute when the state is en
 
     machineDefinition.states["unlocked"]!.entryAction = { t in print("### Clunk!") }
 
-There are also "_transitionGuard_" closures on states that prevent transitions from occuring:
+There are also "_gate_" closures on specific transitions that prevent transitions from occuring:
 
-    // TODO: Example forthcoming
+	// See DebitCardDemo.playground for the full example (sample trimmed for length)
+	machineDefinition.states["waiting"]!.transitions["insert_debit_card"]?.gate = {_, context in
+		guard context.card.cardType == "VISA" else {
+			print("Display: Unsupported Card Type.")
+			return false
+		}
+		guard context.card.pinCode.characters.count == 4 else {
+			print("Display: Unable to read card, corrupted pin code?")
+			return false
+		}
+		// Card seems to be valid!
+		return true
+	}
+
+If you want, you can choose to implement the `TransitionContext` protocol and send these context objects to performTransition / canPerformTransition. If you implement this protocol, your Transition `gate`s and your `entryAction`/`exitAction` closures will be able to fork behavior based on this added context. Example in [DebitCardDemo.playground](./DebitCardDemo.playground/Contents.swift)
 
 ## Outputing State Machine Definitions
 

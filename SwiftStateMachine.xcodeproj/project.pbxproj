@@ -12,6 +12,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		2E21AAF61C7956A300A77341 /* DebitCardDemo.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = DebitCardDemo.playground; sourceTree = "<group>"; };
 		455B9BCE19C295F00083F5DD /* Turnstile.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = Turnstile.playground; sourceTree = "<group>"; };
 		455B9BCF19C2963E0083F5DD /* README.markdown */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.markdown; sourceTree = "<group>"; };
 		45A136681BC88D280020902B /* Table.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = Table.playground; sourceTree = "<group>"; };
@@ -40,6 +41,7 @@
 				45FCBC7019C299BA002DC776 /* test.png */,
 				45A136681BC88D280020902B /* Table.playground */,
 				455B9BCE19C295F00083F5DD /* Turnstile.playground */,
+				2E21AAF61C7956A300A77341 /* DebitCardDemo.playground */,
 				45E2066D19BE4E3300CC6EBE /* SwiftStateMachine */,
 				45E2065E19BE4DF500CC6EBE /* Products */,
 			);
