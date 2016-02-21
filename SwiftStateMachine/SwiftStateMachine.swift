@@ -20,8 +20,8 @@ public class StateMachine {
 
     public typealias StateLabel = String
     public typealias TransitionLabel = String
-    public typealias Action = State -> Void
-    public typealias TransitionGate = State -> Bool
+    public typealias Action = (State, TransitionContext) -> Void
+    public typealias TransitionGate = (State, TransitionContext) -> Bool
     public typealias Logger = AnyObject -> Void
 
     /**
@@ -116,10 +116,10 @@ public class StateMachine {
         self.currentState = self.definition.initialState
     }
 
-    public func canPerformTransition(transition: Transition) -> Bool {
+	public func canPerformTransition(transition: Transition, context: TransitionContext) -> Bool {
         if let transition = currentState.transitions[transition.label] {
             if let gate = transition.gate {
-                return gate(currentState)
+                return gate(currentState, context)
             } else {
                 return true
             }
@@ -127,29 +127,37 @@ public class StateMachine {
         return false
     }
 
-    public func canPerformTransition(transitionLabel: TransitionLabel) throws -> Bool {
-        guard let transition = currentState.transitions[transitionLabel] else {
+	public func canPerformTransition(transitionLabel: TransitionLabel) throws -> Bool {
+		return try canPerformTransition(SimpleTransitionContext(transitionLabel))
+	}
+    public func canPerformTransition(context: TransitionContext) throws -> Bool {
+        guard let transition = currentState.transitions[context.transitionLabel] else {
             throw Error.NoTransition
         }
 
         if let gate = transition.gate {
-            return gate(currentState)
+            return gate(currentState, context)
         } else {
             return true
         }
     }
 
-    public func performTransition(transitionLabel: TransitionLabel) throws {
-        guard let transition = currentState.transitions[transitionLabel] else {
+	public func performTransition(transitionLabel: TransitionLabel) throws {
+		try self.performTransition(SimpleTransitionContext(transitionLabel))
+	}
+
+	public func performTransition(transitionContext: TransitionContext) throws {
+
+        guard let transition = currentState.transitions[transitionContext.transitionLabel] else {
             throw Error.NoTransition
         }
 
-        guard canPerformTransition(transition) == true else {
+        guard canPerformTransition(transition, context: transitionContext) == true else {
             throw Error.CannotPerformTransition
         }
 
         if let action = currentState.exitAction {
-            action(currentState)
+            action(currentState, transitionContext)
         }
 
         let newState = transition.nextState
@@ -157,11 +165,11 @@ public class StateMachine {
 
         currentState = newState
         if let action = currentState.entryAction {
-            action(currentState)
+            action(currentState, transitionContext)
         }
 
         if let action = transition.action {
-            action(currentState)
+            action(currentState, transitionContext)
         }
     }
 
@@ -171,6 +179,13 @@ public class StateMachine {
             logger(o)
         }
     }
+
+	private struct SimpleTransitionContext: TransitionContext {
+		let transitionLabel: String
+		private init(_ transitionLabel: String) {
+			self.transitionLabel = transitionLabel
+		}
+	}
 }
 
 public func += (lhs: StateMachine.Definition, rhs: StateMachine.State) {
@@ -247,6 +262,11 @@ public extension StateMachine.Definition {
         lines.sortInPlace(<)
         return lines.joinWithSeparator("\n")
     }
+}
+
+/// Implement this protocol if you need to pass context to your transition gate and state actions.
+public protocol TransitionContext {
+	var transitionLabel: String { get }
 }
 
 // MARK: Equatable
